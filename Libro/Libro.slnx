@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../Libro.Tests/Libro.Tests.csproj" Id="4738cb66-963d-48b8-8821-53bdbe271a04" />
+  <Project Path="Libro.csproj" />
+</Solution>
