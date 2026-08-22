@@ -1,0 +1,156 @@
+﻿@model Libro.Models.Book
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<a asp-action="Index" class="btn btn-sm btn-outline-secondary mb-3">← Back to Books</a>
+
+<div class="book-details">
+    <div class="book-details-cover">
+        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="@Model.Title" />
+        }
+        else
+        {
+            <div class="book-details-cover-placeholder">📖</div>
+        }
+    </div>
+
+    <div>
+        <div class="book-details-kicker">Catalog Entry — ISBN @Model.Isbn</div>
+        <h1 class="book-details-title">@Model.Title</h1>
+
+        <div class="book-details-author">
+            by <a asp-controller="Authors" asp-action="Details" asp-route-id="@Model.AuthorId">@(Model.Author?.Name ?? "Unknown Author")</a> · @Model.PublishedYear
+        </div>
+
+        <div class="book-details-facts">
+            <div class="book-details-fact">
+                <span>Status</span>
+                <span>
+                    @if (User.IsInRole("Librarian"))
+                    {
+                        @Model.Status
+                    }
+                    else
+                    {
+                        @Model.DisplayStatusForMember
+                    }
+                </span>
+            </div>
+            <div class="book-details-fact">
+                <span>Copies Available</span>
+                <span>@Model.AvailableCopies / @Model.TotalCopies</span>
+            </div>
+            <div class="book-details-fact">
+                <span>Price per Day</span>
+                <span>@Model.BorrowPrice.ToString("C")</span>
+            </div>
+        </div>
+        @if (Model.Categories != null && Model.Categories.Any())
+        {
+            <div class="mb-3">
+                @foreach (var category in Model.Categories)
+                {
+                    <span class="stamp stamp-borrowed">@category.Name</span>
+                }
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <p class="book-details-description">@Model.Description</p>
+        }
+
+        <div class="book-details-actions">
+            @if (User.IsInRole("Librarian"))
+            {
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">Edit</a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+            }
+
+            @if (User.IsInRole("Member"))
+            {
+                <form asp-controller="Favorite" asp-action="Toggle" method="post">
+                    <input type="hidden" name="bookId" value="@Model.Id" />
+                    <button type="submit" class="btn @(ViewBag.IsFavorite == true ? "btn-danger" : "btn-outline-secondary")">
+                        @(ViewBag.IsFavorite == true ? "♥ Remove from Favorites" : "♡ Add to Favorites")
+                    </button>
+                </form>
+                if (Model.CanBeBorrowed)
+                {
+                    <a asp-controller="Loan" asp-action="Borrow" asp-route-bookId="@Model.Id" class="btn btn-primary">Borrow this book</a>
+                }
+                else if (Model.Status != Libro.Models.BookStatus.Unavailable)
+                {
+                    <form asp-controller="Reservation" asp-action="Reserve" method="post">
+                        <input type="hidden" name="bookId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-secondary">Join Waitlist</button>
+                    </form>
+                }
+            }
+        </div>
+    </div>
+    <hr class="my-4" />
+
+    <h4>
+        Reviews
+        @if (ViewBag.ReviewCount > 0)
+        {
+            <span class="rating-stars">@string.Concat(Enumerable.Repeat("★", (int)Math.Round((double)ViewBag.AverageRating)))</span>
+            <span class="text-muted" style="font-size: 0.9rem;">(@ViewBag.AverageRating.ToString("0.0") · @ViewBag.ReviewCount review(s))</span>
+        }
+        else
+        {
+            <span class="text-muted" style="font-size: 0.9rem;">No reviews yet</span>
+        }
+    </h4>
+
+    @if (User.IsInRole("Member") && ViewBag.CanReview == true)
+    {
+        var myReview = ViewBag.MyReview as Libro.Models.Review;
+
+        <div class="form-panel form-panel-wide mb-4">
+            <form asp-controller="Review" asp-action="Submit" method="post">
+                <input type="hidden" name="bookId" value="@Model.Id" />
+
+                <label class="mb-2 d-block">Your Rating</label>
+                <div class="star-rating-input mb-3">
+                    @for (int i = 5; i >= 1; i--)
+                    {
+                        <input type="radio" name="rating" id="star@(i)" value="@i" @(myReview != null && myReview.Rating == i ? "checked" : "") />
+                        <label for="star@(i)">★</label>
+                    }
+                </div>
+
+                <div class="mb-3">
+                    <label>Comment (optional)</label>
+                    <textarea name="comment" class="form-control" rows="3">@myReview?.Comment</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">@(myReview != null ? "Update Review" : "Submit Review")</button>
+            </form>
+        </div>
+    }
+    else if (User.IsInRole("Member"))
+    {
+        <p class="text-muted">You can review this book after borrowing and returning it.</p>
+    }
+
+    <div>
+        @foreach (var review in (List<Libro.Models.Review>)ViewBag.Reviews)
+        {
+            <div class="review-card">
+                <span class="rating-stars">@string.Concat(Enumerable.Repeat("★", review.Rating))@string.Concat(Enumerable.Repeat("☆", 5 - review.Rating))</span>
+                <span class="review-author">@review.Member?.FullName</span>
+                <span class="review-date">@review.CreatedDate.ToShortDateString()</span>
+                @if (!string.IsNullOrWhiteSpace(review.Comment))
+                {
+                    <p class="mt-2 mb-0">@review.Comment</p>
+                }
+            </div>
+        }
+    </div>
+</div>

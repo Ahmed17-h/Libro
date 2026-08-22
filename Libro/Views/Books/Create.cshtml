@@ -1,0 +1,131 @@
+﻿@model Libro.Models.Book
+
+@{
+    ViewData["Title"] = "Add New Book";
+}
+
+<span class="page-kicker">New Catalog Entry</span>
+<h2>Add New Book</h2>
+
+<div class="edit-with-preview">
+    <div class="form-panel form-panel-wide">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Title"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Isbn"></label>
+                <input asp-for="Isbn" class="form-control" />
+                <span asp-validation-for="Isbn" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PublishedYear"></label>
+                <input asp-for="PublishedYear" class="form-control" />
+                <span asp-validation-for="PublishedYear" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description">Details</label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AuthorId"></label>
+                <select asp-for="AuthorId" asp-items="ViewBag.Authors" class="form-control">
+                    <option value="">-- Select Author --</option>
+                </select>
+                <span asp-validation-for="AuthorId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="BorrowPrice">Price per Day (EGP)</label>
+                <input asp-for="BorrowPrice" class="form-control" />
+                <span asp-validation-for="BorrowPrice" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Status"></label>
+                <select asp-for="Status" id="statusSelect" class="form-control" asp-items="ViewBag.StatusOptions"></select>
+            </div>
+
+            <div class="mb-3" id="totalCopiesGroup">
+                <label asp-for="TotalCopies">Total Copies</label>
+                <input asp-for="TotalCopies" type="number" min="1" class="form-control" />
+                <span asp-validation-for="TotalCopies" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ImageUrl">Cover Image URL (optional)</label>
+                <input asp-for="ImageUrl" id="imageUrlInput" class="form-control" placeholder="https://example.com/cover.jpg" />
+                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label>Categories</label>
+                <div class="d-flex flex-wrap gap-3">
+                    @foreach (var category in (List<Libro.Models.Category>)ViewBag.Categories)
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" name="selectedCategoryIds" value="@category.Id" class="form-check-input" id="cat-@category.Id" />
+                            <label class="form-check-label" for="cat-@category.Id">@category.Name</label>
+                        </div>
+                    }
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Book</button>
+        </form>
+    </div>
+
+    <div class="edit-preview-panel">
+        <img id="imagePreview"
+             src="@Model?.ImageUrl"
+             alt="Cover preview"
+             style="@(string.IsNullOrWhiteSpace(Model?.ImageUrl) ? "display:none;" : "")" />
+
+        <div id="imagePlaceholder" class="edit-preview-placeholder" style="@(string.IsNullOrWhiteSpace(Model?.ImageUrl) ? "" : "display:none;")">
+            📖
+            <div class="hint">Cover preview appears here</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const imageUrlInput = document.getElementById("imageUrlInput");
+        const imagePreview = document.getElementById("imagePreview");
+        const imagePlaceholder = document.getElementById("imagePlaceholder");
+
+        function updatePreview() {
+            const url = imageUrlInput.value.trim();
+            if (url) {
+                imagePreview.src = url;
+                imagePreview.style.display = "block";
+                imagePlaceholder.style.display = "none";
+            } else {
+                imagePreview.style.display = "none";
+                imagePlaceholder.style.display = "block";
+            }
+        }
+
+        imageUrlInput.addEventListener("input", updatePreview);
+
+        imagePreview.addEventListener("error", function () {
+            imagePreview.style.display = "none";
+            imagePlaceholder.style.display = "block";
+        });
+
+        function toggleTotalCopies() {
+            var status = document.getElementById("statusSelect").value;
+            var group = document.getElementById("totalCopiesGroup");
+            group.style.display = (status === "Available") ? "block" : "none";
+        }
+
+        document.getElementById("statusSelect").addEventListener("change", toggleTotalCopies);
+        toggleTotalCopies();
+    </script>
+}

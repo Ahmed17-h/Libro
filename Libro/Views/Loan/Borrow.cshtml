@@ -1,0 +1,24 @@
+﻿@model Libro.ViewModel.BorrowViewModel
+
+@{
+    ViewData["Title"] = "Borrow Book";
+}
+
+<h2>Borrow "@Model.BookTitle"</h2>
+<div class="form-panel">
+<form asp-action="Borrow" method="post">
+    <input type="hidden" asp-for="BookId" />
+    <input type="hidden" asp-for="BookTitle" />
+
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="DurationInDays">Borrow Duration (1-7 days)</label>
+        <input asp-for="DurationInDays" type="number" min="1" max="7" class="form-control" />
+        <span asp-validation-for="DurationInDays" class="text-danger"></span>
+    </div>
+    <p><strong>Price per day:</strong> @Model.BorrowPricePerDay.ToString("C")</p>
+    <input type="hidden" asp-for="BorrowPricePerDay" />
+    <button type="submit" class="btn btn-primary">Confirm Borrow</button>
+</form>
+</div>

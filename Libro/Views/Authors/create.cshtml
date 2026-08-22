@@ -1,0 +1,87 @@
+﻿@model Libro.Models.Author
+
+@{
+    ViewData["Title"] = "Add New Author";
+}
+
+<span class="page-kicker">New Entry</span>
+<h2>Add New Author</h2>
+
+<div class="edit-with-preview">
+    <div class="form-panel form-panel-wide">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Bio">Biography</label>
+                <textarea asp-for="Bio" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Bio" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DateOfBirth"></label>
+                <input asp-for="DateOfBirth" type="date" class="form-control" />
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Nationality"></label>
+                <input asp-for="Nationality" class="form-control" placeholder="e.g. Egyptian" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="WebsiteUrl">Website / Wikipedia Link</label>
+                <input asp-for="WebsiteUrl" class="form-control" placeholder="https://en.wikipedia.org/wiki/..." />
+                <span asp-validation-for="WebsiteUrl" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ImageUrl">Photo URL (optional)</label>
+                <input asp-for="ImageUrl" id="imageUrlInput" class="form-control" placeholder="https://example.com/photo.jpg" />
+                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Author</button>
+        </form>
+    </div>
+
+    <div class="edit-preview-panel">
+        <img id="imagePreview" alt="Photo preview" style="display:none;" class="entity-avatar" style="width:180px;height:180px;" />
+        <div id="imagePlaceholder" class="edit-preview-placeholder">
+            ✍️
+            <div class="hint">Photo preview appears here</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const imageUrlInput = document.getElementById("imageUrlInput");
+        const imagePreview = document.getElementById("imagePreview");
+        const imagePlaceholder = document.getElementById("imagePlaceholder");
+
+        function updatePreview() {
+            const url = imageUrlInput.value.trim();
+            if (url) {
+                imagePreview.src = url;
+                imagePreview.style.display = "block";
+                imagePlaceholder.style.display = "none";
+            } else {
+                imagePreview.style.display = "none";
+                imagePlaceholder.style.display = "block";
+            }
+        }
+
+        imageUrlInput.addEventListener("input", updatePreview);
+        imagePreview.addEventListener("error", function () {
+            imagePreview.style.display = "none";
+            imagePlaceholder.style.display = "block";
+        });
+    </script>
+}

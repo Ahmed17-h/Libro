@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Libro.Models.Loan>
+
+@{
+    ViewData["Title"] = "Active Loans";
+}
+
+<span class="page-kicker">Library Desk</span>
+<h2>Active Loans</h2>
+
+<div class="loan-list">
+    @foreach (var loan in Model)
+    {
+        <div class="loan-card">
+            @if (!string.IsNullOrWhiteSpace(loan.Book?.ImageUrl))
+            {
+                <img src="@loan.Book.ImageUrl" alt="@loan.Book.Title" class="loan-card-cover" />
+            }
+            else
+            {
+                <div class="loan-card-cover-placeholder">📖</div>
+            }
+
+            <div class="loan-card-body">
+                <div class="loan-card-title">@loan.Book?.Title</div>
+                <div class="loan-card-meta">
+                    <span>Member: @loan.Member?.FullName</span>
+                    <span>Due @loan.DueDate.ToShortDateString()</span>
+                    @if (loan.DueDate.Date < DateTime.Now.Date)
+                    {
+                        <span class="stamp stamp-overdue">Overdue</span>
+                    }
+                    else
+                    {
+                        <span class="stamp stamp-borrowed">Active</span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

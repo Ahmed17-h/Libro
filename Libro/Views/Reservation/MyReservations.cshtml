@@ -1,0 +1,55 @@
+﻿@model IEnumerable<Libro.Models.Reservation>
+
+@{
+    ViewData["Title"] = "My Reservations";
+}
+
+<span class="page-kicker">Waiting List</span>
+<h2>My Reservations</h2>
+
+<div class="loan-list">
+    @foreach (var r in Model)
+    {
+        <div class="loan-card">
+            @if (!string.IsNullOrWhiteSpace(r.Book?.ImageUrl))
+            {
+                <img src="@r.Book.ImageUrl" alt="@r.Book.Title" class="loan-card-cover" />
+            }
+            else
+            {
+                <div class="loan-card-cover-placeholder">📖</div>
+            }
+
+            <div class="loan-card-body">
+                <div class="loan-card-title">@r.Book?.Title</div>
+                <div class="loan-card-meta">
+                    <span>Reserved @r.ReservationDate.ToShortDateString()</span>
+                    @if (r.Status == Libro.Models.ReservationStatus.Ready)
+                    {
+                        <span class="stamp stamp-available">Ready — Borrow now!</span>
+                        @if (r.ReadyExpiresAt.HasValue)
+                        {
+                            <span class="text-muted" style="font-size: 0.75rem;">
+                                (expires @r.ReadyExpiresAt.Value.ToString("d MMM, h:mm tt"))
+                            </span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="stamp stamp-borrowed">Waiting</span>
+                    }
+                </div>
+                <div class="loan-card-actions">
+                    @if (r.Status == Libro.Models.ReservationStatus.Ready)
+                    {
+                        <a asp-controller="Loan" asp-action="Borrow" asp-route-bookId="@r.BookId" class="btn btn-sm btn-primary">Borrow</a>
+                    }
+                    <form asp-action="Cancel" method="post">
+                        <input type="hidden" name="reservationId" value="@r.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

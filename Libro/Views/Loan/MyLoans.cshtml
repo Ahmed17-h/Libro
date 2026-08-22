@@ -1,0 +1,56 @@
+﻿@model IEnumerable<Libro.Models.Loan>
+
+@{
+    ViewData["Title"] = "My Loans";
+}
+
+<span class="page-kicker">Currently Borrowed</span>
+<h2>My Loans</h2>
+
+<div class="loan-list">
+    @foreach (var loan in Model)
+    {
+        <div class="loan-card">
+            @if (!string.IsNullOrWhiteSpace(loan.Book?.ImageUrl))
+            {
+                <img src="@loan.Book.ImageUrl" alt="@loan.Book.Title" class="loan-card-cover" />
+            }
+            else
+            {
+                <div class="loan-card-cover-placeholder">📖</div>
+            }
+
+            <div class="loan-card-body">
+                <div class="loan-card-title">@loan.Book?.Title</div>
+                <div class="loan-card-meta">
+                    <span>Due @loan.DueDate.ToShortDateString()</span>
+                    @if (loan.DueDate.Date < DateTime.Now.Date)
+                    {
+                        <span class="stamp stamp-overdue">Overdue</span>
+                    }
+                    else
+                    {
+                        var daysLeft = (loan.DueDate.Date - DateTime.Now.Date).Days;
+                        <span class="stamp stamp-available">@daysLeft day(s) left</span>
+                    }
+                </div>
+
+                <div class="loan-card-actions">
+                    <form asp-action="Return" method="post">
+                        <input type="hidden" name="loanId" value="@loan.Id" />
+                        <button type="submit" class="btn btn-sm btn-primary">Return Book</button>
+                    </form>
+
+                    @if (!loan.IsRenewed && loan.DueDate.Date >= DateTime.Now.Date)
+                    {
+                        <form asp-action="Renew" method="post" class="d-flex gap-1">
+                            <input type="hidden" name="loanId" value="@loan.Id" />
+                            <input type="number" name="extraDays" min="1" max="7" value="3" class="form-control form-control-sm" style="width: 65px;" />
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Renew</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

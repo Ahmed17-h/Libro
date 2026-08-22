@@ -1,0 +1,91 @@
+﻿@model Libro.Models.Author
+
+@{
+    ViewData["Title"] = "Edit Author";
+}
+
+<span class="page-kicker">Update Entry</span>
+<h2>Edit Author</h2>
+
+<div class="edit-with-preview">
+    <div class="form-panel form-panel-wide">
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Bio">Biography</label>
+                <textarea asp-for="Bio" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Bio" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DateOfBirth"></label>
+                <input asp-for="DateOfBirth" type="date" class="form-control" value="@Model.DateOfBirth?.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Nationality"></label>
+                <input asp-for="Nationality" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="WebsiteUrl">Website / Wikipedia Link</label>
+                <input asp-for="WebsiteUrl" class="form-control" />
+                <span asp-validation-for="WebsiteUrl" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ImageUrl">Photo URL (optional)</label>
+                <input asp-for="ImageUrl" id="imageUrlInput" class="form-control" />
+                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+    </div>
+
+    <div class="edit-preview-panel">
+        <img id="imagePreview"
+             src="@Model.ImageUrl"
+             alt="Photo preview"
+             style="@(string.IsNullOrWhiteSpace(Model.ImageUrl) ? "display:none;" : "")" />
+        <div id="imagePlaceholder" class="edit-preview-placeholder" style="@(string.IsNullOrWhiteSpace(Model.ImageUrl) ? "" : "display:none;")">
+            ✍️
+            <div class="hint">Photo preview appears here</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const imageUrlInput = document.getElementById("imageUrlInput");
+        const imagePreview = document.getElementById("imagePreview");
+        const imagePlaceholder = document.getElementById("imagePlaceholder");
+
+        function updatePreview() {
+            const url = imageUrlInput.value.trim();
+            if (url) {
+                imagePreview.src = url;
+                imagePreview.style.display = "block";
+                imagePlaceholder.style.display = "none";
+            } else {
+                imagePreview.style.display = "none";
+                imagePlaceholder.style.display = "block";
+            }
+        }
+
+        imageUrlInput.addEventListener("input", updatePreview);
+        imagePreview.addEventListener("error", function () {
+            imagePreview.style.display = "none";
+            imagePlaceholder.style.display = "block";
+        });
+    </script>
+}

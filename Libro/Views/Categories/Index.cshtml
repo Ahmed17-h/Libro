@@ -1,0 +1,22 @@
+﻿@model IEnumerable<Libro.Models.Category>
+
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<span class="page-kicker">Genres</span>
+<h2>Categories</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">Add New Category</a>
+
+<div class="entity-grid">
+    @foreach (var category in Model)
+    {
+        <div class="entity-card">
+            <div class="entity-avatar-placeholder">🏷️</div>
+            <div class="entity-name">@category.Name</div>
+            <a asp-action="Delete" asp-route-id="@category.Id" class="btn btn-sm btn-danger">Delete</a>
+
+        </div>
+    }
+</div>

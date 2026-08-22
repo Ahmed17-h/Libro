@@ -1,0 +1,65 @@
+﻿@model Libro.Models.Member
+
+@{
+    ViewData["Title"] = "Member Details";
+}
+
+<a asp-action="Index" class="btn btn-sm btn-outline-secondary mb-3">← Back to Members</a>
+
+<div class="record-card mb-4">
+    <span class="card-kicker">Membership Record</span>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+    {
+        <img src="@Model.ImageUrl" alt="@Model.FullName" class="record-avatar" />
+    }
+    else
+    {
+        <div class="record-avatar-placeholder">👤</div>
+    }
+
+    <div class="card-title-serif">@Model.FullName</div>
+    @if (Model.IsSuspended)
+    {
+        <span class="stamp stamp-overdue mb-2">Suspended</span>
+    }
+
+    <form asp-action="ToggleSuspend" asp-route-id="@Model.Id" method="post" class="mt-2">
+        <button type="submit" class="btn btn-sm @(Model.IsSuspended ? "btn-success" : "btn-danger")">
+            @(Model.IsSuspended ? "Reactivate Account" : "Suspend Account")
+        </button>
+    </form>
+</div>
+
+<h4>Loan History</h4>
+
+<div class="loan-list">
+    @if (Model.Loans != null)
+    {
+        @foreach (var loan in Model.Loans.OrderByDescending(l => l.BorrowDate))
+        {
+            <div class="loan-card">
+                @if (!string.IsNullOrWhiteSpace(loan.Book?.ImageUrl))
+                {
+                    <img src="@loan.Book.ImageUrl" alt="@loan.Book.Title" class="loan-card-cover" />
+                }
+                else
+                {
+                    <div class="loan-card-cover-placeholder">📖</div>
+                }
+                <div class="loan-card-body">
+                    <div class="loan-card-title">@loan.Book?.Title</div>
+                    <div class="loan-card-meta">
+                        <span>Borrowed @loan.BorrowDate.ToShortDateString()</span>
+                        <span>Due @loan.DueDate.ToShortDateString()</span>
+                        <span>@(loan.ReturnDate.HasValue ? "Returned " + loan.ReturnDate.Value.ToShortDateString() : "Not returned")</span>
+                        @if (loan.Fine.HasValue && loan.Fine > 0)
+                        {
+                            <span class="stamp stamp-overdue">Fine @loan.Fine.Value.ToString("C")</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

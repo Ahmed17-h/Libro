@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<span class="page-kicker">Update Record</span>
+<h2>Edit Profile</h2>
+
+<div class="form-panel">
+    <form asp-action="Edit" method="post">
+        <div class="mb-3">
+            <label>Full Name</label>
+            <input type="text" name="fullName" value="@ViewBag.CurrentName" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label>Profile Image URL</label>
+            <input type="text" name="imageUrl" id="profileImageUrlInput" value="@ViewBag.CurrentImageUrl" class="form-control" placeholder="https://example.com/me.jpg" />
+
+            <div class="mt-2">
+                <img id="profileImagePreview"
+                     src="@ViewBag.CurrentImageUrl"
+                     alt="Profile preview"
+                     class="profile-avatar"
+                     style="@(string.IsNullOrWhiteSpace((string?)ViewBag.CurrentImageUrl) ? "display:none;" : "")" />
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        const profileImageUrlInput = document.getElementById("profileImageUrlInput");
+        const profileImagePreview = document.getElementById("profileImagePreview");
+
+        profileImageUrlInput.addEventListener("input", function () {
+            const url = profileImageUrlInput.value.trim();
+            if (url) {
+                profileImagePreview.src = url;
+                profileImagePreview.style.display = "block";
+            } else {
+                profileImagePreview.style.display = "none";
+            }
+        });
+
+        profileImagePreview.addEventListener("error", function () {
+            profileImagePreview.style.display = "none";
+        });
+    </script>
+}

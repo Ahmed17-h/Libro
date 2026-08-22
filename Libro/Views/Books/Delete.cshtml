@@ -1,0 +1,21 @@
+﻿@model Libro.Models.Book
+
+@{
+    ViewData["Title"] = "Delete Book";
+}
+
+<h2>Are you sure you want to delete this book?</h2>
+
+<div>
+    <h4>@Model.Title</h4>
+    <p><strong>Author:</strong> @Model.Author?.Name</p>
+    <p><strong>Published Year:</strong> @Model.PublishedYear</p>
+    <p><strong>ISBN:</strong> @Model.Isbn</p>
+</div>
+<div class="form-panel">
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+</div>

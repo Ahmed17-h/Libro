@@ -1,0 +1,80 @@
+﻿@model Libro.ViewModel.HomeViewModel
+
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+<section class="hero">
+    <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+            <span class="hero-eyebrow">Catalog No. 000001</span>
+            <h1>Borrow more.<br />Return easy.</h1>
+            <p class="lead">
+                Libro is your library's digital shelf — browse titles, reserve a copy,
+                and track every due date without standing in line.
+            </p>
+
+            <div class="hero-actions">
+                @if (User.Identity!.IsAuthenticated)
+                {
+                    <p class="mb-3">Welcome back, <strong>@ViewData["DisplayName"]</strong>.</p>
+
+                    @if (User.IsInRole("Member"))
+                    {
+                        <a asp-controller="Books" asp-action="Index" class="btn btn-primary btn-lg">Browse Books</a>
+                        <a asp-controller="Loan" asp-action="MyLoans" class="btn btn-outline-secondary btn-lg">My Loans</a>
+                    }
+                    else if (User.IsInRole("Librarian"))
+                    {
+                        <a asp-controller="Books" asp-action="Index" class="btn btn-primary btn-lg">Manage Books</a>
+                        <a asp-controller="Loan" asp-action="ActiveLoans" class="btn btn-outline-secondary btn-lg">Active Loans</a>
+                    }
+                }
+                else
+                {
+                    <a asp-controller="Books" asp-action="Index" class="btn btn-primary btn-lg">Browse Books</a>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary btn-lg">Login</a>
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-outline-secondary btn-lg">Register</a>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="library-card">
+                <span class="card-kicker">Member Record</span>
+                <div class="card-title-serif">The Art of Borrowing</div>
+
+                <div class="card-row"><span>Issued</span><span>Today</span></div>
+                <div class="card-row"><span>Loan Period</span><span>1–7 days</span></div>
+                <div class="card-row"><span>Late Fee</span><span>EGP 25 / day</span></div>
+
+                <span class="due-stamp">On Time</span>
+
+                <div class="shelf-bars" aria-hidden="true">
+                    <span style="background: var(--burgundy);"></span>
+                    <span style="background: var(--brass);"></span>
+                    <span style="background: var(--sage);"></span>
+                    <span style="background: var(--ink-soft);"></span>
+                    <span style="background: var(--rust);"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stat-row">
+    <div class="row text-center text-lg-start">
+        <div class="col-6 col-lg-4 stat-block">
+            <div class="stat-number">@Model.TotalTitles</div>
+            <div class="stat-label">Titles Cataloged</div>
+        </div>
+        <div class="col-6 col-lg-4 stat-block">
+            <div class="stat-number">@Model.TotalCopiesAvailable</div>
+            <div class="stat-label">Copies Available Now</div>
+        </div>
+        <div class="col-12 col-lg-4 stat-block mt-4 mt-lg-0">
+            <div class="stat-number">@Model.TotalMembers</div>
+            <div class="stat-label">Registered Members</div>
+        </div>
+    </div>
+</section>

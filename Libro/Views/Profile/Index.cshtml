@@ -1,0 +1,32 @@
+﻿@model Libro.ViewModel.ProfileViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<span class="page-kicker">Membership Record</span>
+<h2>My Profile</h2>
+
+<div class="record-card">
+    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+    {
+        <img src="@Model.ImageUrl" alt="Profile photo" class="record-avatar" />
+    }
+    else
+    {
+        <div class="record-avatar-placeholder">👤</div>
+    }
+
+    <div class="card-title-serif">@Model.FullName</div>
+
+    <div class="card-row"><span>Email</span><span>@Model.Email</span></div>
+    <div class="card-row"><span>Role</span><span>@Model.Role</span></div>
+
+    @if (Model.Role == "Member")
+    {
+        <div class="card-row"><span>Active Loans</span><span>@Model.ActiveLoansCount</span></div>
+        <div class="card-row"><span>Total Fines</span><span>@Model.TotalFines.ToString("C")</span></div>
+    }
+
+    <a asp-action="Edit" class="btn btn-primary mt-3">Edit Profile</a>
+</div>

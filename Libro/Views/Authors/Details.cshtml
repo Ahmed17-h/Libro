@@ -1,0 +1,75 @@
+﻿@model Libro.Models.Author
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<a asp-action="Index" class="btn btn-sm btn-outline-secondary mb-3">← Back to Authors</a>
+
+<div class="book-details">
+    <div class="book-details-cover">
+        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="@Model.Name" style="border-radius: 50%; aspect-ratio: 1/1; object-fit: cover;" />
+        }
+        else
+        {
+            <div class="book-details-cover-placeholder" style="border-radius: 50%; aspect-ratio: 1/1;">✍️</div>
+        }
+    </div>
+
+    <div>
+        <div class="book-details-kicker">Author Profile</div>
+        <h1 class="book-details-title">@Model.Name</h1>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Nationality) || Model.DateOfBirth.HasValue)
+        {
+            <div class="book-details-author">
+                @Model.Nationality
+                @if (Model.DateOfBirth.HasValue)
+                {
+                    <span> · Born @Model.DateOfBirth.Value.ToString("d MMM yyyy")</span>
+                }
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.Bio))
+        {
+            <p class="book-details-description">@Model.Bio</p>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.WebsiteUrl))
+        {
+            <p><a href="@Model.WebsiteUrl" target="_blank" rel="noopener">Learn more →</a></p>
+        }
+
+        <h4 class="mt-4 mb-3">Books by this author</h4>
+
+        @if (Model.Books != null && Model.Books.Any())
+        {
+            <div class="book-grid">
+                @foreach (var book in Model.Books)
+                {
+                    <div class="book-card">
+                        @if (!string.IsNullOrWhiteSpace(book.ImageUrl))
+                        {
+                            <img src="@book.ImageUrl" alt="@book.Title" class="book-card-cover" />
+                        }
+                        else
+                        {
+                            <div class="book-card-cover-placeholder">📖</div>
+                        }
+                        <div class="book-card-body">
+                            <div class="book-card-title">@book.Title</div>
+                            <a asp-controller="Books" asp-action="Details" asp-route-id="@book.Id" class="btn btn-sm btn-outline-secondary mt-2">View Book</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">No books listed for this author yet.</p>
+        }
+    </div>
+</div>

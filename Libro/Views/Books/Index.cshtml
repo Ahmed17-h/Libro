@@ -1,0 +1,145 @@
+﻿@model Libro.ViewModel.BookListViewModel
+
+@{
+    ViewData["Title"] = "Books";
+}
+
+<h2>Available Books</h2>
+
+<form method="get" asp-action="Index" class="mb-3 d-flex" style="max-width: 400px;">
+    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control me-2" placeholder="Search by title or author..." />
+    <button type="submit" class="btn btn-outline-secondary">Search</button>
+</form>
+
+@if (User.IsInRole("Librarian"))
+{
+    <a asp-action="Create" class="btn btn-primary mb-3">Add New Book</a>
+}
+@if (User.IsInRole("Member") && ViewBag.MaxLoansReached == true)
+{
+    <div class="alert alert-danger">
+        You've reached the maximum of 3 active loans. Return a book to borrow another.
+    </div>
+}
+
+
+@if (ViewBag.RecentlyViewedBooks != null && ((List<Libro.Models.Book>)ViewBag.RecentlyViewedBooks).Any())
+{
+    <div class="mb-4">
+        <span class="page-kicker">Continue Browsing</span>
+        <h5>Recently Viewed</h5>
+        <div class="d-flex flex-wrap gap-3">
+            @foreach (var recentBook in (List<Libro.Models.Book>)ViewBag.RecentlyViewedBooks)
+            {
+                <a asp-action="Details" asp-route-id="@recentBook!.Id" class="text-decoration-none" style="width: 90px;">
+                    @if (!string.IsNullOrWhiteSpace(recentBook.ImageUrl))
+                    {
+                        <img src="@recentBook.ImageUrl" alt="@recentBook.Title" class="loan-card-cover" style="width: 90px; height: 120px;" />
+                    }
+                    else
+                    {
+                        <div class="loan-card-cover-placeholder" style="width: 90px; height: 120px;">📖</div>
+                    }
+                    <div class="mt-1" style="font-size: 0.75rem; color: var(--text);">@recentBook.Title</div>
+                </a>
+            }
+        </div>
+    </div>
+    <hr class="mb-4" />
+}
+<div class="book-grid">
+    @foreach (var book in Model.Books)
+    {
+        <div class="book-card">
+            @if (!string.IsNullOrWhiteSpace(book.ImageUrl))
+            {
+                <img src="@book.ImageUrl" alt="@book.Title" class="book-card-cover" />
+            }
+            else
+            {
+                <div class="book-card-cover-placeholder">📖</div>
+            }
+
+            <div class="book-card-body">
+                <div class="book-card-title">@book.Title</div>
+                <div class="book-card-author">@book.Author?.Name — @book.PublishedYear</div>
+
+                <div class="book-card-meta">
+                    <span>ISBN @book.Isbn</span>
+                    @if (User.IsInRole("Librarian"))
+                    {
+                        <span class="stamp stamp-available">@book.Status</span>
+                    }
+                    else
+                    {
+                        <span class="stamp stamp-available">@book.DisplayStatusForMember</span>
+                    }
+                </div>
+                @if (book.Categories != null && book.Categories.Any())
+                {
+                    <div class="mb-2">
+                        @foreach (var category in book.Categories.Take(2))
+                        {
+                            <span class="stamp stamp-borrowed">@category.Name</span>
+                        }
+                    </div>
+                }
+                <div class="book-card-price">@book.BorrowPrice.ToString("C") / day</div>
+
+                <div class="book-card-actions">
+                    <a asp-action="Details" asp-route-id="@book.Id" class="btn btn-sm btn-outline-secondary">Details</a>
+                    
+                    @if (User.IsInRole("Librarian"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-sm btn-secondary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@book.Id" class="btn btn-sm btn-danger">Delete</a>
+                    }
+
+                    @if (User.IsInRole("Member"))
+                    {
+                        var favoriteIds = ViewBag.FavoriteBookIds as List<int> ?? new List<int>();
+                        bool isFav = favoriteIds.Contains(book.Id);
+
+                        <form asp-controller="Favorite" asp-action="Toggle" method="post">
+                            <input type="hidden" name="bookId" value="@book.Id" />
+                            <button type="submit" class="btn btn-sm @(isFav ? "btn-danger" : "btn-outline-secondary")">
+                                @(isFav ? "♥ Favorited" : "♡ Favorite")
+                            </button>
+                        </form>
+                        var borrowedIds = ViewBag.BorrowedBookIds as List<int> ?? new List<int>();
+
+                        if (borrowedIds.Contains(book.Id))
+                        {
+                            <span class="badge bg-secondary">Borrowed</span>
+                        }
+                        else if (book.CanBeBorrowed)
+                        {
+                            <a asp-controller="Loan" asp-action="Borrow" asp-route-bookId="@book.Id" class="btn btn-sm btn-success">Borrow</a>
+                        }
+                        else if (book.Status != Libro.Models.BookStatus.Unavailable)
+                        {
+                            <form asp-controller="Reservation" asp-action="Reserve" method="post">
+                                <input type="hidden" name="bookId" value="@book.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">Join Waitlist</button>
+                            </form>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination mt-4">
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchTerm="@Model.SearchTerm">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

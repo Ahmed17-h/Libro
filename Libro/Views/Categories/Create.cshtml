@@ -1,0 +1,22 @@
+﻿@model Libro.Models.Category
+
+@{
+    ViewData["Title"] = "Add New Category";
+}
+
+<span class="page-kicker">New Genre</span>
+<h2>Add New Category</h2>
+
+<div class="form-panel">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name"></label>
+            <input asp-for="Name" class="form-control" placeholder="e.g. Fiction, History, Science" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Category</button>
+    </form>
+</div>

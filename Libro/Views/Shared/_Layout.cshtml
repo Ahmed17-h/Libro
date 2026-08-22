@@ -1,0 +1,159 @@
+﻿@using System.Security.Claims
+<!DOCTYPE html>
+@inject Libro.Data.ApplicationDbContext DbContext
+
+@{
+    string displayName = User.Identity?.Name ?? "";
+
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var identityUserId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+
+        if (User.IsInRole("Member"))
+        {
+            var member = DbContext.Members.FirstOrDefault(m => m.IdentityUserId == identityUserId);
+            if (member != null) displayName = member.FullName;
+        }
+        else if (User.IsInRole("Librarian"))
+        {
+            var librarian = DbContext.Librarians.FirstOrDefault(l => l.IdentityUserId == identityUserId);
+            if (librarian != null) displayName = librarian.FullName;
+        }
+    }
+
+    ViewData["DisplayName"] = displayName;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Libro</title>
+    <script type="importmap"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="~/Libro.styles.css" asp-append-version="true" /> *@
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Libro</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Books" asp-action="Index">Books</a>
+                        </li>
+
+                        @if (User.IsInRole("Librarian"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">
+                                    Manage
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Authors" asp-action="Index">Manage Authors</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Members" asp-action="Index">Members</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Loan" asp-action="ActiveLoans">Active Loans</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Loan" asp-action="UnpaidFines">Unpaid Fines</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Categories" asp-action="Index">Categories</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                                </ul>
+                            </li>
+                        }
+
+                        @if (User.Identity!.IsAuthenticated)
+                        {
+                            @if (User.IsInRole("Member"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">
+                                        My Account
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-controller="Loan" asp-action="MyLoans">My Loans</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Loan" asp-action="LoanHistory">Loan History</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Reservation" asp-action="MyReservations">My Reservations</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index">My Profile</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Favorite" asp-action="MyFavorites">My Favorites</a></li>
+                                    </ul>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Profile" asp-action="Index">My Profile</a>
+                                </li>
+                            }
+
+                            <li class="nav-item">
+                                <span class="nav-link text-dark">Hello, @ViewData["DisplayName"]</span>
+                            </li>
+
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-flex">
+                                    <button type="submit" class="btn btn-link nav-link text-dark">Logout</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="container d-flex justify-content-between flex-wrap">
+            <span>&copy; 2026 Libro — Catalog &amp; Lending System</span>
+            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

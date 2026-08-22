@@ -1,0 +1,18 @@
+﻿@model Libro.Models.Author
+
+@{
+    ViewData["Title"] = "Delete Author";
+}
+
+<h2>Are you sure you want to delete this author?</h2>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<h4>@Model.Name</h4>
+<div class="form-panel">
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+</div>

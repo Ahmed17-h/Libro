@@ -1,0 +1,38 @@
+﻿@model IEnumerable<Libro.Models.Loan>
+
+@{
+    ViewData["Title"] = "Loan History";
+}
+
+<span class="page-kicker">Past Records</span>
+<h2>Loan History</h2>
+
+<div class="loan-list">
+    @foreach (var loan in Model)
+    {
+        <div class="loan-card">
+            @if (!string.IsNullOrWhiteSpace(loan.Book?.ImageUrl))
+            {
+                <img src="@loan.Book.ImageUrl" alt="@loan.Book.Title" class="loan-card-cover" />
+            }
+            else
+            {
+                <div class="loan-card-cover-placeholder">📖</div>
+            }
+
+            <div class="loan-card-body">
+                <div class="loan-card-title">@loan.Book?.Title</div>
+                <div class="loan-card-meta">
+                    <span>Returned @loan.ReturnDate?.ToShortDateString()</span>
+                    <span>Cost @loan.BorrowCost.ToString("C")</span>
+                    @if (loan.Fine.HasValue && loan.Fine > 0)
+                    {
+                        <span class="stamp @(loan.IsFinePaid ? "stamp-available" : "stamp-overdue")">
+                            Fine @loan.Fine.Value.ToString("C") — @(loan.IsFinePaid ? "Paid" : "Unpaid")
+                        </span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

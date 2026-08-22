@@ -1,0 +1,26 @@
+﻿@model IEnumerable<Libro.Models.Member>
+
+@{
+    ViewData["Title"] = "Members";
+}
+
+<span class="page-kicker">Membership Roll</span>
+<h2>Members</h2>
+
+<div class="entity-grid">
+    @foreach (var member in Model)
+    {
+        <div class="entity-card">
+            @if (!string.IsNullOrWhiteSpace(member.ImageUrl))
+            {
+                <img src="@member.ImageUrl" alt="@member.FullName" class="entity-avatar" />
+            }
+            else
+            {
+                <div class="entity-avatar-placeholder">👤</div>
+            }
+            <div class="entity-name">@member.FullName</div>
+            <a asp-action="Details" asp-route-id="@member.Id" class="btn btn-sm btn-outline-secondary">Details</a>
+        </div>
+    }
+</div>

@@ -1,0 +1,79 @@
+﻿@model Libro.ViewModel.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<span class="page-kicker">Library Overview</span>
+<h2>Dashboard</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card p-3 text-center">
+            <div class="stat-number" style="font-size: 1.8rem;">@Model.TotalBooks</div>
+            <div class="stat-label">Total Books</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3 text-center">
+            <div class="stat-number" style="font-size: 1.8rem;">@Model.TotalMembers</div>
+            <div class="stat-label">Total Members</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3 text-center">
+            <div class="stat-number" style="font-size: 1.8rem; color: var(--rust);">@Model.OverdueLoansCount</div>
+            <div class="stat-label">Overdue Loans</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3 text-center">
+            <div class="stat-number" style="font-size: 1.8rem; color: var(--rust);">@Model.UnpaidFinesTotal.ToString("C")</div>
+            <div class="stat-label">Unpaid Fines</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <h5>Top 5 Borrowed Books</h5>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr><th>Book</th><th>Times Borrowed</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var stat in Model.TopBorrowedBooks)
+                    {
+                        <tr>
+                            <td>@stat.BookTitle</td>
+                            <td>@stat.BorrowCount</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <h5>Recently Joined Members</h5>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr><th>Name</th><th>Joined</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var member in Model.RecentMembers)
+                    {
+                        <tr>
+                            <td>@member.FullName</td>
+                            <td>@member.CreatedDate.ToShortDateString()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<a asp-controller="Dashboard" asp-action="ExportLoansReport" class="btn btn-outline-secondary mt-4">Export Loans Report (CSV)</a>
